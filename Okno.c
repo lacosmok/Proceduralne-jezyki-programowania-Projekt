@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include<allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h> 
+#include <allegro5/allegro_native_dialog.h> 
 
 const float FPS = 60;
 const int SCREEN_W = 640;
@@ -9,15 +11,50 @@ const int BOUNCER_SIZE = 32;
 enum MYKEYS {
 	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
 };
+struct monster {
+	char  name[50];
+	int   life;
+	int   level;
+};
+struct building {
+	char  name[50];
+	int   gold_per_sec;
+	int   number;
+};
+struct hero {
+	char  name[50];
+	int str;
+	int hit_per_click;
+};
+typedef struct BITMAP{
+	int w, h;                          
+};
 
 int main(int argc, char **argv)
 {
+	
 	ALLEGRO_DISPLAY *display = NULL;
 	ALLEGRO_TIMER *timer = NULL;
-	ALLEGRO_BITMAP *bouncer = NULL;
 	bool key[4] = { false, false, false, false };
 	bool redraw = true;
 	bool doexit = false;
+	//Tutaj bêd¹ zdefiniowane structury
+	struct hero champ;
+	struct building stajnia;
+	struct monster cel;
+	strcpy_s(champ.name, _countof(champ.name), "wow");
+	champ.str=1;
+	champ.hit_per_click = 1;
+
+	strcpy_s(stajnia.name, _countof(stajnia.name), "stajnia");
+	stajnia.number = 1;
+	stajnia.gold_per_sec = 0.1;
+	
+	strcpy_s(cel.name, _countof(cel.name), "cel");
+	cel.life= 1;
+	cel.level = 1;
+
+
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -71,6 +108,7 @@ int main(int argc, char **argv)
 		}
 		else if (events.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
+		
 			if (events.mouse.button & 1)
 				points = points + 1;
 				playerColor = electricalBlue;
