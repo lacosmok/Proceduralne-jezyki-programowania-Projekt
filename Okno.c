@@ -54,6 +54,9 @@ int main(int argc, char **argv)
 	cel.life= 1;
 	cel.level = 1;
 
+	al_init_image_addon();
+	ALLEGRO_BITMAP *cela = al_load_bitmap("monster.bmp");
+
 
 
 	if (!al_init()) {
@@ -78,6 +81,13 @@ int main(int argc, char **argv)
 		al_destroy_timer(timer);
 		return -1;
 	}
+
+	if (!cela) {
+		fprintf(stderr, "failed to create bitmap!\n");
+		al_destroy_bitmap(cela);
+		return -1;
+	}
+
 	int points = 0;
 	bool done = false;
 	int x = 10, y = 10, moveSpeed = 5;
@@ -108,7 +118,7 @@ int main(int argc, char **argv)
 		}
 		else if (events.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-		
+			al_draw_bitmap(cela, 0, 0, 0);
 			if (events.mouse.button & 1)
 				points = points + 1;
 				playerColor = electricalBlue;
@@ -119,10 +129,10 @@ int main(int argc, char **argv)
 		al_flip_display();
 		al_clear_to_color(al_map_rgb(0, 0, 0));
 	}
-
+	al_destroy_bitmap(cela);
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
-
+	al_shutdown_image_addon();
 	return 0;
 }
