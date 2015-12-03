@@ -26,9 +26,6 @@ struct hero {
 	int str;
 	int hit_per_click;
 };
-typedef struct BITMAP{
-	int w, h;                          
-};
 
 int main(int argc, char **argv)
 {
@@ -55,8 +52,8 @@ int main(int argc, char **argv)
 	cel.level = 1;
 
 	al_init_image_addon();
-	ALLEGRO_BITMAP *cela = al_load_bitmap("monster.bmp");
-
+	ALLEGRO_BITMAP *cela = NULL;
+	cela = al_create_bitmap(cela, cela);
 
 
 	if (!al_init()) {
@@ -87,7 +84,7 @@ int main(int argc, char **argv)
 		al_destroy_bitmap(cela);
 		return -1;
 	}
-
+	al_set_target_bitmap(cela);
 	int points = 0;
 	bool done = false;
 	int x = 10, y = 10, moveSpeed = 5;
@@ -118,7 +115,7 @@ int main(int argc, char **argv)
 		}
 		else if (events.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-			al_draw_bitmap(cela, 0, 0, 0);
+			al_set_target_bitmap(cela);
 			if (events.mouse.button & 1)
 				points = points + 1;
 				playerColor = electricalBlue;
