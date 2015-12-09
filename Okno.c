@@ -3,12 +3,10 @@
 #include<allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h> 
 #include <allegro5/allegro_native_dialog.h> 
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
 
 const float FPS = 60;
-const int SCREEN_W = 960;
-const int SCREEN_H = 720;
+const int SCREEN_W = 640;
+const int SCREEN_H = 480;
 const int BOUNCER_SIZE = 32;
 enum MYKEYS {
 	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
@@ -17,7 +15,7 @@ struct monster {
 	char  name[50];
 	int   life;
 	int   level;
-};  char   name;
+};
 struct building {
 	char  name[50];
 	int   gold_per_sec;
@@ -52,10 +50,12 @@ int main(int argc, char **argv)
 	strcpy_s(cel.name, _countof(cel.name), "cel");
 	cel.life= 1;
 	cel.level = 1;
-	al_init_font_addon();
+
 	al_init_image_addon();
-	al_init_ttf_addon();
-	//sprawdzenie poszczególnych elementów
+	ALLEGRO_BITMAP *cela = NULL;
+	cela = al_create_bitmap(cela, cela);
+
+
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
 		return -1;
@@ -78,32 +78,18 @@ int main(int argc, char **argv)
 		al_destroy_timer(timer);
 		return -1;
 	}
-	ALLEGRO_BITMAP *monster = al_load_bitmap("monster.bmp");
-	if (!monster) {
-		fprintf(stderr, "failed to create bouncer bitmap!\n");
-		al_destroy_display(display);
-		al_destroy_timer(timer);
-		return -1;
-	}
-	ALLEGRO_BITMAP *panel = al_load_bitmap("guziki.bmp");
-	if (!panel) {
-		fprintf(stderr, "failed to create bouncer bitmap!\n");
-		al_destroy_display(display);
-		al_destroy_timer(timer);
-		return -1;
-	}
-	ALLEGRO_FONT *font = al_load_ttf_font("GOTHIC.TTF", 36, 0);
-	if (!font){
-		fprintf(stderr, "Could not load 'pirulen.ttf'.\n");
-		return -1;
-	}
 
+	if (!cela) {
+		fprintf(stderr, "failed to create bitmap!\n");
+		al_destroy_bitmap(cela);
+		return -1;
+	}
+	al_set_target_bitmap(cela);
 	int points = 0;
 	bool done = false;
 	int x = 10, y = 10, moveSpeed = 5;
 	al_init_primitives_addon();
 	al_install_mouse();
-	//kolejka eventów
 	ALLEGRO_EVENT_QUEUE  *event_queue = al_create_event_queue();
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	al_register_event_source(event_queue, al_get_display_event_source(display));
@@ -129,20 +115,18 @@ int main(int argc, char **argv)
 		}
 		else if (events.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-			
+			al_set_target_bitmap(cela);
 			if (events.mouse.button & 1)
 				points = points + 1;
-				
+				playerColor = electricalBlue;
 			if (events.mouse.button & 2)
-				points = points + 1;
+				playerColor = yellow;
 		}
-		al_draw_textf(font, al_map_rgb(255, 255, 255), 50,600, 0, "Punktacja: %i",points);
-		al_draw_bitmap(monster, 50, 50, 0);
-		al_draw_bitmap(panel,300, 50, 0);
+		al_draw_rectangle(x, y, x + 10, y + 10, playerColor, 1);
 		al_flip_display();
 		al_clear_to_color(al_map_rgb(0, 0, 0));
 	}
-	
+	al_destroy_bitmap(cela);
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
