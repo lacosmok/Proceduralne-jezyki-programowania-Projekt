@@ -20,8 +20,8 @@ struct monster {
 };  char   name;
 struct building {
 	char  name[50];
-	int   gold_per_sec;
-	int   number;
+	float   gold_per_sec;
+	float   number;
 };
 struct hero {
 	char  name[50];
@@ -29,6 +29,12 @@ struct hero {
 	int hit_per_click;
 };
 
+struct helper {
+	char  name[50];
+	int cost;
+	int number;
+	int hit_per_second;
+};
 int main(int argc, char **argv)
 {
 	
@@ -41,17 +47,23 @@ int main(int argc, char **argv)
 	struct hero champ;
 	struct building stajnia;
 	struct monster cel;
+	struct helper zbrojny;
 	strcpy_s(champ.name, _countof(champ.name), "wow");
 	champ.str=1;
 	champ.hit_per_click = 1;
 
 	strcpy_s(stajnia.name, _countof(stajnia.name), "stajnia");
-	stajnia.number = 1;
+	stajnia.number = 0;
 	stajnia.gold_per_sec = 0.1;
 	
 	strcpy_s(cel.name, _countof(cel.name), "cel");
-	cel.life= 1;
+	cel.life= 2;
 	cel.level = 1;
+	strcpy_s(zbrojny.name, _countof(zbrojny.name), "zbrojny");
+	zbrojny.cost=10;
+	zbrojny.number=0;
+	zbrojny.hit_per_second=1;
+
 	al_init_font_addon();
 	al_init_image_addon();
 	al_init_ttf_addon();
@@ -79,7 +91,16 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	ALLEGRO_BITMAP *monster = al_load_bitmap("monster.bmp");
+	al_convert_mask_to_alpha(monster, al_map_rgb(0, 0, 255));
 	if (!monster) {
+		fprintf(stderr, "failed to create bouncer bitmap!\n");
+		al_destroy_display(display);
+		al_destroy_timer(timer);
+		return -2;
+	}
+	ALLEGRO_BITMAP *monster2 = al_load_bitmap("monster2.bmp");
+	al_convert_mask_to_alpha(monster2, al_map_rgb(0, 0, 255));
+	if (!monster2) {
 		fprintf(stderr, "failed to create bouncer bitmap!\n");
 		al_destroy_display(display);
 		al_destroy_timer(timer);
@@ -105,7 +126,13 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	int points = 0;
+	float points = 0;
+	int tick=0;
+	int gold_income=0;
+	int licznik = 0;
+	int zdrowie=cel.life;
+	int sila = champ.str;
+	int swap = 1;
 	bool done = false;
 	int x = 10, y = 10, moveSpeed = 5;
 	al_init_primitives_addon();
@@ -124,7 +151,13 @@ int main(int argc, char **argv)
 	{
 		ALLEGRO_EVENT events;
 		al_wait_for_event(event_queue, &events);
-
+		licznik = (licznik + 1);
+		if (licznik % 60 == 0){
+			licznik = 0;
+			points = points + (stajnia.gold_per_sec*stajnia.number);
+			//zdrowie = zdrowie - (zbrojny.number*zbrojny.hit_per_second);
+			sila = sila + zbrojny.number;
+		}
 		if (events.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
 			done = true;
@@ -136,24 +169,53 @@ int main(int argc, char **argv)
 		}
 		else if (events.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-			
-			if (events.mouse.button & 1  && x>50 && x<200 && y>50 && y<400)
-				points = points + champ.str;
-				
+			//tu te¿ jest potwór
+			if (events.mouse.button & 1 && x > 50 && x<200 && y>50 && y<400)
+
+				zdrowie = zdrowie - sila;
+			//tu jest potwór	
 			if (events.mouse.button & 2 && x>50 && x<200 && y>50 && y<400)
-				points = points + champ.str;
+				points = points + sila;
 			if (events.mouse.button & 1 && x>300 && x<400 && y>50 && y<150 && points>=10)
 			{
 
 				points = points - 10;
-				champ.str = champ.str + 1;
+				stajnia.number++;
 			}
+			if (events.mouse.button & 1 && x>300 && x<550 && y>50 && y<100 && points >= 10)
+			{
+
+				points = points - 10;
+				stajnia.number++;
+			}
+			if (events.mouse.button & 1 && x>600 && x<900 && y>50 && y<100 && points >= 20)
+			{
+
+				points = points - 20;
+				zbrojny.number++;
+			}
+	
 		}
+		if (zdrowie <= 0){
+			zdrowie = cel.life;
+			swap = swap + 1;
+			points = points + 1;
+			
+		}
+		
 		al_draw_bitmap(tlo, 0, 0, 0);
-		al_draw_textf(font, al_map_rgb(255, 255, 255), 50,700, 0, "Punktacja: %i",points);
-		al_convert_mask_to_alpha(monster, al_map_rgb(0, 0, 255));
-		al_draw_bitmap(monster, 50, 50, 0);
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 50,700, 0, "Punktacja: %.2f",points);
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 70, 330, 0, "zdrowie %i", zdrowie);
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 500, 700, 0, "x,y %i,%i", x,y);
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 500, 60, 0, " %.0f", stajnia.number);
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 800, 60, 0, " %i",zbrojny.number);
 		al_draw_bitmap(panel,300, 50, 0);
+		if (swap % 2 == 0){
+			al_draw_bitmap(monster2, 50, 50, 0);
+			al_flip_display();
+		}
+		else
+			al_draw_bitmap(monster, 50, 50, 0);
 		al_flip_display();
 		al_clear_to_color(al_map_rgb(0, 0, 0));
 	}
