@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 	struct building kapitol;
 	strcpy_s(kapitol.name, _countof(kapitol.name), "kapitol");
 	kapitol.number = 0;
-	kapitol.gold_per_sec = 50000;
+	kapitol.gold_per_sec = 5000;
 
 	strcpy_s(cel.name, _countof(cel.name), "cel");
 	cel.life= 2;
@@ -89,27 +89,27 @@ int main(int argc, char **argv)
 	strcpy_s(lucz.name, _countof(lucz.name), "³uczniczka");
 	lucz.cost = 10;
 	lucz.number = 0;
-	lucz.hit_per_second = 1;
+	lucz.hit_per_second = 10;
 	struct helper balista;
 	strcpy_s(balista.name, _countof(balista.name), "balista");
 	balista.cost = 10;
 	balista.number = 0;
-	balista.hit_per_second = 1;
+	balista.hit_per_second = 100;
 	struct helper rycerz;
 	strcpy_s(rycerz.name, _countof(rycerz.name), "rycerz");
 	rycerz.cost = 10;
 	rycerz.number = 0;
-	rycerz.hit_per_second = 1;
+	rycerz.hit_per_second = 1000;
 	struct helper czarnoksieznik;
 	strcpy_s(czarnoksieznik.name, _countof(czarnoksieznik.name), "czarnoksieznik");
 	czarnoksieznik.cost = 10;
 	czarnoksieznik.number = 0;
-	czarnoksieznik.hit_per_second = 1;
+	czarnoksieznik.hit_per_second = 5000;
 	struct helper minister;
 	strcpy_s(minister.name, _countof(minister.name), "minister");
 	minister.cost = 10;
 	minister.number = 0;
-	minister.hit_per_second = 1;
+	minister.hit_per_second = -500;
 
 	al_init_font_addon();
 	al_init_image_addon();
