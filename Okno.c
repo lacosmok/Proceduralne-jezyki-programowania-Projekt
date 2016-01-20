@@ -5,8 +5,7 @@
 #include <allegro5/allegro_native_dialog.h> 
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
-
-const float FPS = 60;
+const int FPS = 60;
 const int SCREEN_W = 1080;
 const int SCREEN_H = 760;
 const int BOUNCER_SIZE = 32;
@@ -50,6 +49,7 @@ int main(int argc, char **argv)
 	strcpy_s(champ.name, _countof(champ.name), "wow");
 	champ.str=1;
 	champ.hit_per_click = 1;
+	
 	//budynki
 	struct building stajnia;
 	strcpy_s(stajnia.name, _countof(stajnia.name), "stajnia");
@@ -75,10 +75,10 @@ int main(int argc, char **argv)
 	strcpy_s(kapitol.name, _countof(kapitol.name), "kapitol");
 	kapitol.number = 0;
 	kapitol.gold_per_sec = 5000;
-
 	strcpy_s(cel.name, _countof(cel.name), "cel");
 	cel.life= 2;
 	cel.level = 1;
+	
 	//pomocnicy
 	struct helper zbrojny;
 	strcpy_s(zbrojny.name, _countof(zbrojny.name), "zbrojny");
@@ -153,6 +153,30 @@ int main(int argc, char **argv)
 		al_destroy_timer(timer);
 		return -2;
 	}
+	ALLEGRO_BITMAP *monster3= al_load_bitmap("monster3.bmp");
+	al_convert_mask_to_alpha(monster2, al_map_rgb(0, 0, 255));
+	if (!monster2) {
+		fprintf(stderr, "failed to create bouncer bitmap!\n");
+		al_destroy_display(display);
+		al_destroy_timer(timer);
+		return -2;
+	}
+	ALLEGRO_BITMAP *monster4 = al_load_bitmap("monster4.bmp");
+	al_convert_mask_to_alpha(monster2, al_map_rgb(0, 0, 255));
+	if (!monster2) {
+		fprintf(stderr, "failed to create bouncer bitmap!\n");
+		al_destroy_display(display);
+		al_destroy_timer(timer);
+		return -2;
+	}
+	ALLEGRO_BITMAP *monster5 = al_load_bitmap("monster5.bmp");
+	al_convert_mask_to_alpha(monster2, al_map_rgb(0, 0, 255));
+	if (!monster2) {
+		fprintf(stderr, "failed to create bouncer bitmap!\n");
+		al_destroy_display(display);
+		al_destroy_timer(timer);
+		return -2;
+	}
 	ALLEGRO_BITMAP *panel = al_load_bitmap("guziki.bmp");
 	if (!panel) {
 		fprintf(stderr, "failed to create bouncer bitmap!\n");
@@ -188,6 +212,7 @@ int main(int argc, char **argv)
 		al_destroy_timer(timer);
 		return -5;
 	}
+
 	ALLEGRO_FONT *font = al_load_ttf_font("GOTHIC.TTF", 36, 0);
 	if (!font){
 		fprintf(stderr, "Could not load 'pirulen.ttf'.\n");
@@ -213,23 +238,21 @@ int main(int argc, char **argv)
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	al_register_event_source(event_queue, al_get_display_event_source(display));
 	al_register_event_source(event_queue, al_get_mouse_event_source());
-	ALLEGRO_COLOR electricalBlue = al_map_rgb(44, 117, 255);
-	ALLEGRO_COLOR yellow = al_map_rgb(255, 255, 0);
-	ALLEGRO_COLOR playerColor = al_map_rgb(44, 117, 255);
 	//al_hide_mouse_cursor(display);
 	al_start_timer(timer);
 	while (!done)
 	{
 		ALLEGRO_EVENT events;
 		al_wait_for_event(event_queue, &events);
-		//tutaj dzieje sie ca³a mechanika gry generalnie
+		//tutaj dzieje sie ca³a mechanika gry generalnie czyli kolejka eventów... yay
+
 		licznik = (licznik + 1);
-		if (licznik % 60 == 0){
+		if (licznik % 30 == 0){
+			//podstawowa matematyka rzadzaca œwiatem!
 			licznik = 0;
 			points = points + (stajnia.gold_per_sec*stajnia.number) + (karczma.gold_per_sec*karczma.number) + (warsztat.gold_per_sec*warsztat.number);
 			points = points + (gildia.gold_per_sec*gildia.number) + (forteca.gold_per_sec*forteca.number) + (kapitol.gold_per_sec*kapitol.number);
-			points = points + minister.number * 10000;
-			//zdrowie = zdrowie - (zbrojny.number*zbrojny.hit_per_second);
+			points = points + minister.number * 500;
 			sila = sila+zbrojny.number+lucz.number*10+balista.number*50+rycerz.number*150+czarnoksieznik.number*350+minister.number*-500;
 		}
 		if (events.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -266,17 +289,17 @@ int main(int argc, char **argv)
 				points = points - 1000;
 				warsztat.number++;
 			}
-			if (events.mouse.button & 1 && x>310 && x<530 && y>290 && y<340 && points >= 10000)
+			if (events.mouse.button & 1 && x>310 && x<530 && y>290 && y<340 && points >= 5000)
 			{
 				points = points - 10000;
 				forteca.number++;
 			}
-			if (events.mouse.button & 1 && x>310 && x<530 && y>360 && y<400 && points >= 100000)
+			if (events.mouse.button & 1 && x>310 && x<530 && y>360 && y<400 && points >= 10000)
 			{
 				points = points - 100000;
 				gildia.number++;
 			}
-			if (events.mouse.button & 1 && x>310 && x<530 && y>420 && y<460 && points >= 1000000)
+			if (events.mouse.button & 1 && x>310 && x<530 && y>420 && y<460 && points >= 50000)
 			{
 				points = points - 1000000;
 				kapitol.number++;
@@ -331,14 +354,14 @@ int main(int argc, char **argv)
 				k++;
 			}
 			swap = swap + 1;
-			points = points + 1000;
+			points = points + 2;
 
 		}
 		//a tu jest z kolei generowanie wszystkiego
 		if (ekran_powitalny == true){  //tu jest ekran startowy
 			al_draw_bitmap(tlo2, 0, 0, 0);
 			al_draw_bitmap(do_gry, 700, 650, 0);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 500, 700, 0, "x,y %i,%i,%d", x, y,ekran_powitalny);
+			//al_draw_textf(font, al_map_rgb(255, 255, 255), 500, 700, 0, "x,y %i,%i,%d", x, y,ekran_powitalny);
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 			
@@ -347,7 +370,7 @@ int main(int argc, char **argv)
 		{
 			al_draw_bitmap(tlo, 0, 0, 0);
 			al_draw_bitmap(panel, 300, 50, 0);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 50, 700, 0, "Punktacja: %.2f", points);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 50, 700, 0, "Waluta: %.2f", points);
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 70, 330, 0, "zdrowie %i", zdrowie);
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 500, 700, 0, "x,y %i,%i", x, y);
 			//wyswietlanie budynkow
@@ -358,12 +381,12 @@ int main(int argc, char **argv)
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 450, 350, 0, " %.0f", gildia.number);
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 450, 410, 0, " %.0f", kapitol.number);
 
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 110, 0, " %.0f", stajnia.gold_per_sec);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 170, 0, " %.0f", karczma.gold_per_sec);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 230, 0, " %.0f", warsztat.gold_per_sec);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 290, 0, " %.0f", forteca.gold_per_sec);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 350, 0, " %.0f", gildia.gold_per_sec);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 410, 0, " %.0f", kapitol.gold_per_sec);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 110, 0, "10", stajnia.gold_per_sec);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 170, 0, "100", karczma.gold_per_sec);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 230, 0, "1000", warsztat.gold_per_sec);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 560, 290, 0, "5000", forteca.gold_per_sec);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 540, 350, 0, "10000", gildia.gold_per_sec);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 545, 410, 0, "50000", kapitol.gold_per_sec);
 			//wyswietlanie pomocnikow
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 800, 110, 0, " %.0f", zbrojny.number);
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 800, 170, 0, " %.0f", lucz.number);
@@ -372,23 +395,40 @@ int main(int argc, char **argv)
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 800, 350, 0, " %.0f", czarnoksieznik.number);
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 800, 410, 0, " %.0f", minister.number);
 			
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 110, 0, " %.i", zbrojny.hit_per_second);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 170, 0, " %.i", lucz.hit_per_second);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 230, 0, " %.i", balista.hit_per_second);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 290, 0, " %.i", rycerz.hit_per_second);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 350, 0, " %.i", czarnoksieznik.hit_per_second);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 410, 0, " %.i", minister.hit_per_second);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 110, 0, " 5", zbrojny.hit_per_second);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 170, 0, " 20", lucz.hit_per_second);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 230, 0, " 50", balista.hit_per_second);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 290, 0, " 150", rycerz.hit_per_second);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 350, 0, " 350", czarnoksieznik.hit_per_second);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 900, 410, 0, " 5000", minister.hit_per_second);
 
 			al_draw_bitmap(co_robie, 700, 650, 0);
-			if (swap % 2 == 0){
+			if (swap == 2){
 				al_draw_bitmap(monster2, 50, 50, 0);
 				al_flip_display();
 			}
-			else
-			al_draw_bitmap(monster, 50, 50, 0);
+			if (swap == 3){
+				al_draw_bitmap(monster3, 50, 50, 0);
+				al_flip_display();
+			}
+			if (swap == 4){
+				al_draw_bitmap(monster4, 50, 50, 0);
+				al_flip_display();
+			}
+			if (swap  == 5){
+				al_draw_bitmap(monster5, 50, 50, 0);
+				al_flip_display();
+			}
+			if (swap == 1){
+				al_draw_bitmap(monster, 50, 50, 0);
+				al_flip_display();
+			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 		}
+		if (swap == 6) //To ¿eby stworki siê p³ynnie zmienia³y
+			swap = 1;
+		
 	}
 	al_destroy_timer(timer);
 	al_destroy_display(display);
